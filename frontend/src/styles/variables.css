@@ -1,0 +1,38 @@
+:root {
+  /* Paleta Institucional Vista Livre */
+  --color-primary: #0E3C82;
+  --color-primary-dark: #092859;
+  --color-primary-light: #EBF2FC;
+  --color-accent-sand: #EBE0BA;
+  --color-surface-sand: #F7F4EB;
+
+  /* Superfícies e Neutros */
+  --color-bg-app: #F8FAFC;
+  --color-bg-card: #FFFFFF;
+  --color-text-primary: #1E293B;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+
+  /* Estados Semânticos */
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #15803D;
+  --color-info-bg: #E0F2FE;
+  --color-info-text: #0369A1;
+  --color-neutral-bg: #F1F5F9;
+  --color-neutral-text: #475569;
+  --color-danger-bg: #FEE2E2;
+  --color-danger-text: #B91C1C;
+  --color-danger-btn: #DC2626;
+
+  /* Tipografia */
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Layout e Elevação */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --sidebar-width: 260px;
+}

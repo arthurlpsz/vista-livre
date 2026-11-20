@@ -150,7 +150,7 @@ export function AdminLayout() {
             }}
           >
             <ExternalLink size={15} />
-            Ver Site Público
+            Ver Página Inicial
           </a>
 
           <div

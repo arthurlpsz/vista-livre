@@ -232,3 +232,17 @@ button, input, select, textarea {
     transform: rotate(360deg);
   }
 }
+
+.public-shell {
+  background-color: var(--color-bg-public);
+}
+
+.property-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: #C5D1E3;
+}

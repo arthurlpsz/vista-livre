@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, Star, Trash2, Plus, X } from 'lucide-react';
 import { api } from '../../services/api';
-import { extrairMensagemErro } from '../../utils/formatters';
+import {
+  extrairMensagemErro,
+  formatarMoedaInput,
+  formatarNumeroParaInput,
+  parseMoedaInput,
+} from '../../utils/formatters';
 import { AlertMessage } from '../../components/common/AlertMessage';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
 
@@ -35,6 +40,8 @@ const ESTADO_INICIAL = {
   diferenciais: [],
 };
 
+const CAMPOS_MONETARIOS = ['preco_venda', 'preco_locacao', 'valor_condominio', 'valor_iptu'];
+
 export function ImovelFormPage() {
   const { id } = useParams();
   const modoEdicao = Boolean(id);
@@ -43,7 +50,7 @@ export function ImovelFormPage() {
   const [form, setForm] = useState(ESTADO_INICIAL);
   const [dominios, setDominios] = useState({ tipos_imovel: [], finalidades: [], situacoes_imovel: [] });
   const [fotos, setFotos] = useState([]);
-  const [arquivosNovos, setArquivosNovos] = useState([]);
+  const [arquivosNovos, setArquivosNovos] = useState([]); // Array de { file, previewUrl }
   const [novoDiferencial, setNovoDiferencial] = useState('');
 
   const [carregandoTela, setCarregandoTela] = useState(true);
@@ -69,10 +76,10 @@ export function ImovelFormPage() {
             situacao_id: im.situacao_id,
             publicado: im.publicado,
             destaque: im.destaque,
-            preco_venda: im.preco_venda ?? '',
-            preco_locacao: im.preco_locacao ?? '',
-            valor_condominio: im.valor_condominio ?? '',
-            valor_iptu: im.valor_iptu ?? '',
+            preco_venda: formatarNumeroParaInput(im.preco_venda),
+            preco_locacao: formatarNumeroParaInput(im.preco_locacao),
+            valor_condominio: formatarNumeroParaInput(im.valor_condominio),
+            valor_iptu: formatarNumeroParaInput(im.valor_iptu),
             cep: im.cep || '',
             estado: im.estado || 'SP',
             cidade: im.cidade || '',
@@ -115,6 +122,15 @@ export function ImovelFormPage() {
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
+
+    if (CAMPOS_MONETARIOS.includes(name)) {
+      setForm((prev) => ({
+        ...prev,
+        [name]: formatarMoedaInput(value),
+      }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -156,6 +172,14 @@ export function ImovelFormPage() {
     }));
   }
 
+  function removerArquivoNovo(index) {
+    setArquivosNovos((prev) => {
+      const alvo = prev[index];
+      if (alvo?.previewUrl) URL.revokeObjectURL(alvo.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
   async function enviarArquivosParaApi(imovelId, listaArquivos) {
     if (!listaArquivos || listaArquivos.length === 0) return;
     const formData = new FormData();
@@ -177,20 +201,31 @@ export function ImovelFormPage() {
     try {
       const payload = {
         ...form,
-        preco_venda: finalidadeAtual === 'LOCACAO' ? null : form.preco_venda,
-        preco_locacao: finalidadeAtual === 'VENDA' ? null : form.preco_locacao,
+        preco_venda: finalidadeAtual === 'LOCACAO' ? null : parseMoedaInput(form.preco_venda),
+        preco_locacao: finalidadeAtual === 'VENDA' ? null : parseMoedaInput(form.preco_locacao),
+        valor_condominio: parseMoedaInput(form.valor_condominio),
+        valor_iptu: parseMoedaInput(form.valor_iptu),
       };
 
       if (modoEdicao) {
         await api.put(`/admin/imoveis/${id}`, payload);
-        setFeedback({ tipo: 'success', mensagem: 'Alterações do imóvel salvas com sucesso.' });
+        setFeedback({ tipo: 'success', mensagem: 'Alterações do imóvel salvas com sucesso!' });
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         const { data } = await api.post('/admin/imoveis', payload);
         if (arquivosNovos.length > 0) {
-          await enviarArquivosParaApi(data.id, arquivosNovos);
+          await enviarArquivosParaApi(
+            data.id,
+            arquivosNovos.map((item) => item.file)
+          );
+          arquivosNovos.forEach((item) => URL.revokeObjectURL(item.previewUrl));
         }
-        navigate(`/admin/imoveis/${data.id}/editar`, { replace: true });
+        navigate('/admin', {
+          replace: true,
+          state: {
+            mensagemSucesso: `Cadastro do imóvel "${data.titulo}" (${data.codigo_referencia}) realizado com sucesso!`,
+          },
+        });
       }
     } catch (error) {
       setFeedback({ tipo: 'error', mensagem: extrairMensagemErro(error, 'Erro ao salvar imóvel.') });
@@ -201,11 +236,16 @@ export function ImovelFormPage() {
   }
 
   async function handleUploadImediato(e) {
-    const selecionados = e.target.files;
-    if (!selecionados || selecionados.length === 0) return;
+    const selecionados = Array.from(e.target.files || []);
+    if (selecionados.length === 0) return;
 
     if (!modoEdicao) {
-      setArquivosNovos(selecionados);
+      const novosItens = selecionados.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+      setArquivosNovos((prev) => [...prev, ...novosItens]);
+      e.target.value = '';
       return;
     }
 
@@ -334,11 +374,11 @@ export function ImovelFormPage() {
               <div className="form-group">
                 <label className="form-label">Preço de Venda (R$) *</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
                   name="preco_venda"
-                  className="form-control"
+                  className="form-control tabular-nums"
+                  placeholder="0,00"
                   value={form.preco_venda}
                   onChange={handleChange}
                   required
@@ -350,11 +390,11 @@ export function ImovelFormPage() {
               <div className="form-group">
                 <label className="form-label">Valor de Locação Mensal (R$) *</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0"
+                  type="text"
+                  inputMode="numeric"
                   name="preco_locacao"
-                  className="form-control"
+                  className="form-control tabular-nums"
+                  placeholder="0,00"
                   value={form.preco_locacao}
                   onChange={handleChange}
                   required
@@ -365,11 +405,11 @@ export function ImovelFormPage() {
             <div className="form-group">
               <label className="form-label">Condomínio (R$)</label>
               <input
-                type="number"
-                step="0.01"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 name="valor_condominio"
-                className="form-control"
+                className="form-control tabular-nums"
+                placeholder="0,00"
                 value={form.valor_condominio}
                 onChange={handleChange}
               />
@@ -378,11 +418,11 @@ export function ImovelFormPage() {
             <div className="form-group">
               <label className="form-label">IPTU Mensal/Anual (R$)</label>
               <input
-                type="number"
-                step="0.01"
-                min="0"
+                type="text"
+                inputMode="numeric"
                 name="valor_iptu"
-                className="form-control"
+                className="form-control tabular-nums"
+                placeholder="0,00"
                 value={form.valor_iptu}
                 onChange={handleChange}
               />
@@ -611,12 +651,56 @@ export function ImovelFormPage() {
             />
           </label>
 
+          {/* Pré-visualização de fotos selecionadas no cadastro */}
           {!modoEdicao && arquivosNovos.length > 0 && (
-            <p style={{ marginTop: '0.75rem', fontSize: '0.86rem', color: 'var(--color-primary)', fontWeight: 500 }}>
-              {arquivosNovos.length} fotografia(s) selecionada(s) — serão enviadas automaticamente ao salvar o imóvel.
-            </p>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
+                gap: '0.85rem',
+                marginTop: '1.25rem',
+              }}
+            >
+              {arquivosNovos.map((item, idx) => (
+                <div
+                  key={item.previewUrl}
+                  style={{
+                    border: idx === 0 ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-sm)',
+                    overflow: 'hidden',
+                    backgroundColor: '#FFFFFF',
+                  }}
+                >
+                  <img
+                    src={item.previewUrl}
+                    alt={item.file.name}
+                    style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }}
+                  />
+                  <div style={{ padding: '0.45rem 0.6rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span
+                      style={{
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        color: idx === 0 ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                      }}
+                    >
+                      {idx === 0 ? 'Capa Inicial' : `Foto ${idx + 1}`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removerArquivoNovo(idx)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-danger-text)', cursor: 'pointer' }}
+                      title="Remover seleção"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
 
+          {/* Fotos já enviadas no modo de edição */}
           {modoEdicao && fotos.length > 0 && (
             <div
               style={{

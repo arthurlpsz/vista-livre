@@ -1,6 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PrivateRoute } from './PrivateRoute';
+import { PublicLayout } from '../layouts/PublicLayout';
 import { AdminLayout } from '../layouts/AdminLayout';
+
+// Páginas Públicas
+import { HomePage } from '../pages/public/HomePage';
+import { CatalogoPage } from '../pages/public/CatalogoPage';
+import { ImovelDetalhesPage } from '../pages/public/ImovelDetalhesPage';
+import { SobrePage } from '../pages/public/SobrePage';
+import { ContatoPage } from '../pages/public/ContatoPage';
+
+// Páginas Administrativas
 import { LoginPage } from '../pages/admin/LoginPage';
 import { DashboardPage } from '../pages/admin/DashboardPage';
 import { ImoveisListPage } from '../pages/admin/ImoveisListPage';
@@ -11,10 +21,16 @@ export function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Redirecionamento provisório até a construção do Site Público na Etapa 5 */}
-        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+        {/* Site Público */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/imoveis" element={<CatalogoPage />} />
+          <Route path="/imoveis/:codigo" element={<ImovelDetalhesPage />} />
+          <Route path="/sobre" element={<SobrePage />} />
+          <Route path="/contato" element={<ContatoPage />} />
+        </Route>
 
-        {/* Autenticação Administrativa */}
+        {/* Login Administrativo */}
         <Route path="/admin/login" element={<LoginPage />} />
 
         {/* Rotas Protegidas do Painel Administrativo */}
@@ -31,7 +47,7 @@ export function AppRoutes() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/admin/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

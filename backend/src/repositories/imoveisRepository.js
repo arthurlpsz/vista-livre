@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { pool } from '../config/database.js';
 
 export const imoveisRepository = {
@@ -124,7 +125,7 @@ export const imoveisRepository = {
     try {
       await client.query('BEGIN');
 
-      const tempCodigo = `TMP-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const tempCodigo = `TMP-${crypto.randomBytes(6).toString('hex')}`;
 
       const { rows } = await client.query(
         `INSERT INTO imoveis (

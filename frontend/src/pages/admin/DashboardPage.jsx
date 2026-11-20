@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Plus, Building2, CheckCircle2, KeyRound, BadgeCheck, Pencil } from 'lucide-react';
 import { api } from '../../services/api';
 import { formatCurrency, extrairMensagemErro } from '../../utils/formatters';
 import { AlertMessage } from '../../components/common/AlertMessage';
 
 export function DashboardPage() {
+  const location = useLocation();
   const [dados, setDados] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
+  const [mensagemSucesso] = useState(location.state?.mensagemSucesso || '');
+
+  useEffect(() => {
+    if (location.state?.mensagemSucesso) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     async function carregarDashboard() {
@@ -54,6 +62,7 @@ export function DashboardPage() {
         </Link>
       </div>
 
+      <AlertMessage tipo="success" mensagem={mensagemSucesso} />
       <AlertMessage tipo="error" mensagem={erro} />
 
       {/* Cards de Indicadores */}

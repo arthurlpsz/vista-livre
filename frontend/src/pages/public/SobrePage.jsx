@@ -17,9 +17,6 @@ export function SobrePage() {
           Nosso compromisso é conduzir cada negociação com clareza, análise documental rigorosa e acompanhamento
           próximo em todas as etapas, garantindo tranquilidade tanto para proprietários quanto para compradores e locatários.
         </p>
-        <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
-          Registro Institucional: {EMPRESA_CONFIG.creci}
-        </p>
 
         <div style={{ paddingTop: '0.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link to="/imoveis" className="btn btn-primary">Ver Imóveis Disponíveis</Link>

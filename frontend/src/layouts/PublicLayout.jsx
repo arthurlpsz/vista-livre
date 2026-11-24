@@ -9,21 +9,6 @@ export function PublicLayout() {
 
   return (
     <div className="public-shell">
-      <div className="public-topbar">
-        <div className="public-topbar-inner">
-          <div className="public-topbar-contacts">
-            <span className="public-topbar-item">
-              <Phone size={13} /> {EMPRESA_CONFIG.whatsappExibicao}
-            </span>
-            <span className="public-topbar-item">
-              <Mail size={13} /> {EMPRESA_CONFIG.emailContato}
-            </span>
-          </div>
-          <span className="public-topbar-hours">
-            <Clock size={13} /> {EMPRESA_CONFIG.horarioAtendimento}
-          </span>
-        </div>
-      </div>
 
       <header className="public-header">
         <div className="public-header-inner">
@@ -119,7 +104,7 @@ export function PublicLayout() {
             <ul className="public-footer-list">
               <li className="public-footer-contact-item">
                 <Phone size={15} />
-                <span>{EMPRESA_CONFIG.telefoneExibicao} / {EMPRESA_CONFIG.whatsappExibicao}</span>
+                <span>{EMPRESA_CONFIG.telefoneExibicao}</span>
               </li>
               <li className="public-footer-contact-item">
                 <Mail size={15} />

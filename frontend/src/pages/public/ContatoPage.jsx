@@ -1,10 +1,7 @@
 import { Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react';
-import { EMPRESA_CONFIG, gerarLinkWhatsApp } from '../../config/empresa';
+import { EMPRESA_CONFIG } from '../../config/empresa';
 
 export function ContatoPage() {
-  const linkWhatsApp = gerarLinkWhatsApp(
-    'Olá, equipe Vista Livre! Gostaria de obter mais informações sobre imóveis.'
-  );
 
   return (
     <div style={{ maxWidth: '920px', margin: '0 auto', padding: '3rem 1.25rem' }}>
@@ -20,10 +17,9 @@ export function ContatoPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         <div className="card">
           <Phone size={22} color="var(--color-primary)" style={{ marginBottom: '0.6rem' }} />
-          <h3 style={{ fontSize: '1.05rem', marginBottom: '0.35rem' }}>Telefone e WhatsApp</h3>
+          <h3 style={{ fontSize: '1.05rem', marginBottom: '0.35rem' }}>Telefone</h3>
           <p style={{ fontSize: '0.92rem', color: 'var(--color-text-secondary)' }}>
-            Fixo: {EMPRESA_CONFIG.telefoneExibicao}<br />
-            WhatsApp: {EMPRESA_CONFIG.whatsappExibicao}
+            Fixo: {EMPRESA_CONFIG.telefoneExibicao}
           </p>
         </div>
 
@@ -50,23 +46,6 @@ export function ContatoPage() {
             {EMPRESA_CONFIG.endereco}
           </p>
         </div>
-      </div>
-
-      <div className="card" style={{ textAlign: 'center', backgroundColor: 'var(--color-surface-sand)' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Atendimento Rápido via WhatsApp</h2>
-        <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.25rem' }}>
-          Inicie uma conversa diretamente com nossa equipe comercial.
-        </p>
-        <a
-          href={linkWhatsApp}
-          target="_blank"
-          rel="noreferrer"
-          className="btn"
-          style={{ backgroundColor: '#16A34A', color: '#FFFFFF' }}
-        >
-          <MessageCircle size={18} />
-          Iniciar Conversa no WhatsApp
-        </a>
       </div>
     </div>
   );

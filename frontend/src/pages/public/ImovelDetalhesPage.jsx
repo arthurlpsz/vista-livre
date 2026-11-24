@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { formatCurrency, formatArea } from '../../utils/formatters';
-import { gerarLinkWhatsApp } from '../../config/empresa';
 
 export function ImovelDetalhesPage() {
   const { codigo } = useParams();
@@ -60,9 +59,6 @@ export function ImovelDetalhesPage() {
     );
   }
 
-  const mensagemWhatsApp = `Olá, equipe Vista Livre! Tenho interesse no imóvel "${imovel.titulo}" (Código: ${imovel.codigo_referencia}) anunciado no site.`;
-  const linkWhatsApp = gerarLinkWhatsApp(mensagemWhatsApp);
-
   const enderecoFormatado = imovel.exibir_endereco_completo && imovel.logradouro
     ? `${imovel.logradouro}${imovel.numero ? `, ${imovel.numero}` : ''} — ${imovel.bairro}, ${imovel.cidade}/${imovel.estado}`
     : `${imovel.bairro}, ${imovel.cidade} - ${imovel.estado}`;
@@ -93,7 +89,6 @@ export function ImovelDetalhesPage() {
         </p>
       </div>
 
-      {/* Grid Principal: Galeria + Descrição à esquerda | Card de Preço e WhatsApp à direita */}
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(300px, 1fr)', gap: '1.75rem', alignItems: 'start' }} className="detalhes-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {/* Galeria de Fotografias */}
@@ -240,23 +235,6 @@ export function ImovelDetalhesPage() {
               </div>
             )}
           </div>
-
-          <a
-            href={linkWhatsApp}
-            target="_blank"
-            rel="noreferrer"
-            className="btn"
-            style={{
-              width: '100%',
-              backgroundColor: '#16A34A',
-              color: '#FFFFFF',
-              padding: '0.85rem 1rem',
-              fontSize: '0.96rem',
-            }}
-          >
-            <MessageCircle size={19} />
-            Falar pelo WhatsApp
-          </a>
 
           <p style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)', textAlign: 'center', marginTop: '0.75rem' }}>
             Atendimento direto com a equipe Vista Livre informando o código <strong>{imovel.codigo_referencia}</strong>.
